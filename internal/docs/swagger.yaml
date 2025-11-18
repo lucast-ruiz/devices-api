@@ -1,0 +1,173 @@
+basePath: /
+definitions:
+  model.Device:
+    properties:
+      brand:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      state:
+        $ref: '#/definitions/model.DeviceState'
+    type: object
+  model.DeviceState:
+    enum:
+    - available
+    - in-use
+    - inactive
+    type: string
+    x-enum-varnames:
+    - StateAvailable
+    - StateInUse
+    - StateInactive
+host: localhost:8080
+info:
+  contact: {}
+  description: Devices management API
+  title: Devices API
+  version: "1.0"
+paths:
+  /devices:
+    get:
+      description: List all devices or filter by brand/state
+      parameters:
+      - description: Filter by brand
+        in: query
+        name: brand
+        type: string
+      - description: Filter by state
+        in: query
+        name: state
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Device'
+            type: array
+        "500":
+          description: internal error
+          schema:
+            type: string
+      summary: List devices
+      tags:
+      - devices
+    post:
+      consumes:
+      - application/json
+      description: Create a new device with name, brand and state
+      parameters:
+      - description: Device to create
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/model.Device'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Device'
+        "400":
+          description: invalid body
+          schema:
+            type: string
+        "500":
+          description: failed to create device
+          schema:
+            type: string
+      summary: Create a new device
+      tags:
+      - devices
+  /devices/{id}:
+    delete:
+      description: Delete a device by ID
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: no content
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Delete a device
+      tags:
+      - devices
+    get:
+      description: Get a single device by its ID
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Device'
+        "404":
+          description: not found
+          schema:
+            type: string
+        "500":
+          description: internal error
+          schema:
+            type: string
+      summary: Get a device by ID
+      tags:
+      - devices
+    patch:
+      consumes:
+      - application/json
+      description: Partially update a device
+      parameters:
+      - description: Device ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Partial device fields
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/model.Device'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Device'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "404":
+          description: not found
+          schema:
+            type: string
+      summary: Update a device
+      tags:
+      - devices
+swagger: "2.0"

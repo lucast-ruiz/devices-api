@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: devices_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: devices
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  migrate:
+    image: migrate/migrate
+    container_name: devices_migrate
+    entrypoint: [
+      "migrate",
+      "-path=/migrations",
+      "-database=postgres://postgres:postgres@db:5432/devices?sslmode=disable"
+    ]
+    command: ["up"]
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      - db
+
+  api:
+    build: .
+    container_name: devices_api
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/devices?sslmode=disable
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - migrate
+
+volumes:
+  db_data:
