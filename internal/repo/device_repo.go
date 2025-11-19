@@ -103,10 +103,15 @@ func (r *DeviceRepository) Delete(ctx context.Context, id string) error {
 	return err
 }
 
-func (r *DeviceRepository) ListAll(ctx context.Context) ([]model.Device, error) {
-	query := `SELECT id, name, brand, state, created_at FROM devices`
+func (r *DeviceRepository) ListAll(ctx context.Context, limit, offset int) ([]model.Device, error) {
+	query := `
+		SELECT id, name, brand, state, created_at
+		FROM devices
+		ORDER BY created_at DESC
+		LIMIT $1 OFFSET $2
+	`
 
-	rows, err := r.db.QueryContext(ctx, query)
+	rows, err := r.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}

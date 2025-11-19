@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
 
   migrate:
     image: migrate/migrate
@@ -28,15 +33,16 @@ services:
       - db
 
   api:
-    build: .
+    build: .      
     container_name: devices_api
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/devices?sslmode=disable
     ports:
       - "8080:8080"
     depends_on:
-      - db
-      - migrate
+      db:
+        condition: service_healthy 
+      
 
 volumes:
   db_data:

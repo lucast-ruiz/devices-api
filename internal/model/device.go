@@ -17,3 +17,12 @@ type Device struct {
 	State     DeviceState `json:"state"`
 	CreatedAt time.Time   `json:"created_at"`
 }
+
+func IsValidState(s string) bool {
+	switch DeviceState(s) {
+	case StateAvailable, StateInUse, StateInactive:
+		return true
+	default:
+		return false
+	}
+}

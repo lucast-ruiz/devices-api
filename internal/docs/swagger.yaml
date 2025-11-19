@@ -1,5 +1,23 @@
 basePath: /
 definitions:
+  api.CreateDeviceDTO:
+    properties:
+      brand:
+        type: string
+      name:
+        type: string
+      state:
+        type: string
+    type: object
+  api.UpdateDeviceDTO:
+    properties:
+      brand:
+        type: string
+      name:
+        type: string
+      state:
+        type: string
+    type: object
   model.Device:
     properties:
       brand:
@@ -26,13 +44,14 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: Devices management API
+  description: Devices management API - 1Global Assessment
   title: Devices API
   version: "1.0"
 paths:
   /devices:
     get:
-      description: List all devices or filter by brand/state
+      description: List all devices or filter by brand/state. If no filter is provided,
+        results are paginated.
       parameters:
       - description: Filter by brand
         in: query
@@ -42,6 +61,14 @@ paths:
         in: query
         name: state
         type: string
+      - description: Max items to return (default 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Items to skip for pagination (default 0)
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -54,7 +81,9 @@ paths:
         "500":
           description: internal error
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
       summary: List devices
       tags:
       - devices
@@ -68,7 +97,7 @@ paths:
         name: device
         required: true
         schema:
-          $ref: '#/definitions/model.Device'
+          $ref: '#/definitions/api.CreateDeviceDTO'
       produces:
       - application/json
       responses:
@@ -77,13 +106,17 @@ paths:
           schema:
             $ref: '#/definitions/model.Device'
         "400":
-          description: invalid body
+          description: invalid body or validation error
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: failed to create device
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
       summary: Create a new device
       tags:
       - devices
@@ -100,13 +133,23 @@ paths:
         "204":
           description: no content
         "400":
-          description: bad request
+          description: business rule error
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: not found
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Delete a device
       tags:
       - devices
@@ -128,11 +171,15 @@ paths:
         "404":
           description: not found
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: internal error
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
       summary: Get a device by ID
       tags:
       - devices
@@ -151,7 +198,7 @@ paths:
         name: device
         required: true
         schema:
-          $ref: '#/definitions/model.Device'
+          $ref: '#/definitions/api.UpdateDeviceDTO'
       produces:
       - application/json
       responses:
@@ -160,13 +207,23 @@ paths:
           schema:
             $ref: '#/definitions/model.Device'
         "400":
-          description: bad request
+          description: validation or business rule error
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: not found
           schema:
-            type: string
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: internal error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Update a device
       tags:
       - devices

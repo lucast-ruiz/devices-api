@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -19,7 +21,7 @@ import (
 
 // @title Devices API
 // @version 1.0
-// @description Devices management API
+// @description Devices management API - 1Global Assessment
 // @host localhost:8080
 // @BasePath /
 func main() {
@@ -34,14 +36,30 @@ func main() {
 	handler := api.NewHandler(deviceService)
 
 	r := chi.NewRouter()
+
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(60 * time.Second))
+
+	//Healthcheck
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	})
+
+	//Swagger
 	docs.SwaggerInfo.BasePath = "/"
 	
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("doc.json"), 
 	))
 
+	//api
 	r.Mount("/", handler.Routes())
 
 	fmt.Println("Server running on :8080")
-	http.ListenAndServe(":8080", r)
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		panic(err)
+	}
 }

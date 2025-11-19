@@ -1,25 +1,31 @@
 package service
 
 import (
-    "context"
-    "time"
+	"context"
 	"fmt"
+	"time"
 
-    "github.com/google/uuid"
-    "github.com/lucast-ruiz/devices-api/internal/model"
-    "github.com/lucast-ruiz/devices-api/internal/repo"
+	"github.com/google/uuid"
+	"github.com/lucast-ruiz/devices-api/internal/model"
 )
 
-
 type DeviceService struct {
-	repo *repo.DeviceRepository
+    repo DeviceRepo
 }
 
-func NewDeviceService(r *repo.DeviceRepository) *DeviceService {
-	return &DeviceService{repo: r}
+
+func NewDeviceService(r DeviceRepo) *DeviceService {
+    return &DeviceService{repo: r}
 }
 
 func (s *DeviceService) Create(ctx context.Context, name, brand, state string) (*model.Device, error) {
+	if name == "" || brand == "" {
+		return nil, fmt.Errorf("name and brand are required")
+	}
+	if !model.IsValidState(state) {
+		return nil, fmt.Errorf("invalid state value")
+	}
+
 	device := &model.Device{
 		ID:        uuid.New().String(),
 		Name:      name,
@@ -28,8 +34,7 @@ func (s *DeviceService) Create(ctx context.Context, name, brand, state string) (
 		CreatedAt: time.Now(),
 	}
 
-	err := s.repo.Create(ctx, device)
-	if err != nil {
+	if err := s.repo.Create(ctx, device); err != nil {
 		return nil, err
 	}
 
@@ -40,8 +45,8 @@ func (s *DeviceService) GetByID(ctx context.Context, id string) (*model.Device, 
 	return s.repo.GetByID(ctx, id)
 }
 
-func (s *DeviceService) ListAll(ctx context.Context) ([]model.Device, error) {
-	return s.repo.ListAll(ctx)
+func (s *DeviceService) ListAll(ctx context.Context, limit, offset int) ([]model.Device, error) {
+	return s.repo.ListAll(ctx, limit, offset)
 }
 
 func (s *DeviceService) GetByBrand(ctx context.Context, brand string) ([]model.Device, error) {
@@ -71,6 +76,14 @@ func (s *DeviceService) Update(ctx context.Context, id string, name, brand, stat
 		}
 	}
 
+	// Valida estado, se enviado
+	if state != nil {
+		if !model.IsValidState(*state) {
+			return nil, fmt.Errorf("invalid state value")
+		}
+		device.State = model.DeviceState(*state)
+	}
+
 	// Apply patch
 	if name != nil {
 		device.Name = *name
@@ -78,13 +91,9 @@ func (s *DeviceService) Update(ctx context.Context, id string, name, brand, stat
 	if brand != nil {
 		device.Brand = *brand
 	}
-	if state != nil {
-		device.State = model.DeviceState(*state)
-	}
 
 	// Save
-	err = s.repo.Update(ctx, device)
-	if err != nil {
+	if err := s.repo.Update(ctx, device); err != nil {
 		return nil, err
 	}
 
@@ -107,3 +116,14 @@ func (s *DeviceService) Delete(ctx context.Context, id string) error {
 
 	return s.repo.Delete(ctx, id)
 }
+
+type DeviceRepo interface {
+    Create(ctx context.Context, d *model.Device) error
+    GetByID(ctx context.Context, id string) (*model.Device, error)
+    ListAll(ctx context.Context, limit, offset int) ([]model.Device, error)
+    GetByBrand(ctx context.Context, brand string) ([]model.Device, error)
+    GetByState(ctx context.Context, state string) ([]model.Device, error)
+    Update(ctx context.Context, d *model.Device) error
+    Delete(ctx context.Context, id string) error
+}
+
