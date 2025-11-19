@@ -44,7 +44,7 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: Devices management API - 1Global Assessment
+  description: Devices management API
   title: Devices API
   version: "1.0"
 paths:

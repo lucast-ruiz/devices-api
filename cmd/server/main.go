@@ -21,7 +21,7 @@ import (
 
 // @title Devices API
 // @version 1.0
-// @description Devices management API - 1Global Assessment
+// @description Devices management API
 // @host localhost:8080
 // @BasePath /
 func main() {

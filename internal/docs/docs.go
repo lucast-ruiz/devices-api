@@ -357,7 +357,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Devices API",
-	Description:      "Devices management API - 1Global Assessment",
+	Description:      "Devices management API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

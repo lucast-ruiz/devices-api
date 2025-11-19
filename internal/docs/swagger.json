@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Devices management API - 1Global Assessment",
+        "description": "Devices management API",
         "title": "Devices API",
         "contact": {},
         "version": "1.0"
