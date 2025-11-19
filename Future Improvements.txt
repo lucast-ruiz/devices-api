@@ -1,0 +1,36 @@
+Future Improvements
+
+There are several enhancements I intend to implement in future iterations of this API. These changes do not alter the overall architecture, but they will make the project more complete, more maintainable, and closer to a production-ready solution.
+
+Logging:
+I plan to add structured logging (using Go’s built-in slog or a similar lightweight logger) so that errors, requests, and domain validations are recorded consistently. This will make debugging easier and improve observability.
+
+Response DTOs:
+Currently, the API returns the internal Device struct directly. I intend to introduce dedicated response DTOs so that the HTTP layer becomes independent of internal model changes.
+
+Input validation:
+Even though the service layer applies some domain validation, I want to integrate a proper validation library (such as validator.v10) to make request validation more robust and predictable.
+
+Pagination metadata:
+List endpoints already support pagination through limit and offset, but the response does not return any metadata. I plan to add information such as total, count, and paging details so clients have better visibility of the dataset.
+
+Structured error types:
+Errors are currently plain strings. In the future, I will introduce typed errors for domain rules, improving error handling both in the service and handler layers.
+
+Database migrations:
+Right now, the database schema must be created manually. I plan to add automated migrations (using goose, migrate, or dbmate) so that the schema can be managed cleanly across environments.
+
+HTTP handler tests:
+The service layer already has unit tests, but I want to extend test coverage to the HTTP handlers using httptest to ensure the API responses and status codes behave exactly as expected.
+
+More expressive mocks in tests:
+Mocks are currently implemented manually. I may switch to a library like testify/mock to reduce boilerplate and make the tests easier to read.
+
+Continuous Integration:
+I plan to introduce a basic CI pipeline that runs unit tests, checks formatting, and prevents breaking changes from being merged. Later, the pipeline can be extended to include Swagger generation, static analysis, and image building.
+
+API versioning:
+To allow safe evolution of the API, I plan to introduce /api/v1 style versioning.
+
+Rate limiting and security:
+Although not required for this challenge, adding rate limiting and a simple authentication layer (API key or JWT) would make the API more realistic for production scenarios.
